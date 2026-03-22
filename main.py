@@ -3,6 +3,7 @@ import graphics
 import tkinter as tkr           
 import random as rd
 
+#como limpiar main?
 
 #interface graphique
 root = tkr.Tk()
