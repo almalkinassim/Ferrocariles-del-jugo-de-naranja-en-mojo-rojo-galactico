@@ -16,6 +16,13 @@ class PlanetSprite:
     self.photo = ImageTk.PhotoImage(imgsz) #la fait lisible pour tkinter
     # id Permet la visualisation dans la fenetre de tkinter
     self.id = canvas.create_image( planet.x,planet.y,image=self.photo)
+    # Affiche le nom de la planete juste sous le sprite
+    self.text_id = canvas.create_text(
+      planet.x, planet.y + 32, # position du texte juste en dessous du sprite
+      text=planet.NomP, fill="#EBCCFB"
+    )
+
+    
     
 class CanvasResize:
   def __init__(self,canvas):
@@ -27,10 +34,10 @@ class CanvasResize:
 
 def GalaxyPath(canvas,galaxy):
   col = random.randint(0,0x100000)
-  for i in range(len(galaxy) - 1):
+  for i in range(len(galaxy)):
       p1 = galaxy[i]
-      p2 = galaxy[i + 1]
-      canvas.create_line(p1.x, p1.y, p2.x, p2.y, fill=f"#{col:06x}", width=2) # invalid color name "#1001109" - fix: col:06x pour que col soit toujours un nombre de 6 chiffres en hexadécimal
+      p2 = galaxy[(i + 1) % len(galaxy)] # pour faire un circuit fermé, on prend le prochain planète 
+      canvas.create_line(p1.x, p1.y, p2.x, p2.y, fill=f"#{col:06x}", width=2) # Trace le chemin entre planètes consécutives
 
 class Reglages:
   def __init__(self,root):

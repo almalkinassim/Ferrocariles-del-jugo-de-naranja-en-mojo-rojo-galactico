@@ -32,7 +32,6 @@ class Galaxia: #GENERA LOS PLANETAS UNICAMENTE
         self.coordx : int
         self.coordy : int
 
-      #experimento a ver si funciona normalmente deberia de   de generarme unos 10 inidviduos
     def SamsungGalaxy(self,n: int):
         ListCoordx = []
         ListCoordy = []
@@ -49,16 +48,25 @@ class Galaxia: #GENERA LOS PLANETAS UNICAMENTE
             self.coordx = rdint(1,28)*32 # la taille de la ventana y 32 porque los planetas son de 32 pixels
             self.coordy = rdint(1,21)*32
             
-            while(self.coordx in ListCoordx and   self.coordy in ListCoordy):# tiene que ser un while 
-                self.coordx = rdint(1,28)*32 # mientras las coordenadas esten en la lista entoces dame otras
-                self.coordy = rdint(1,21)*32
-            self.NovoPlanete = Planete(self.nombreCoplt, self.coordx, self.coordy)
+            if(self.coordx not in ListCoordx and self.coordy not in ListCoordy):# para evitar super posiciones
+                self.NovoPlanete = Planete(self.nombreCoplt, self.coordx, self.coordy)
+            else:
+                self.NovoPlanete = Planete(self.nombreCoplt, self.coordx+16, self.coordy+16)
             self.listPlnt.append(self.NovoPlanete)
+            
+            # ! podemos volver a usar while, si le damos un numero maximo de intentos para evitar un bucle inf, por ahora seguir usando elif
+
+            #while(self.coordx in ListCoordx and   self.coordy in ListCoordy):# tiene que ser un while 
+            #    self.coordx = rdint(1,28)*32 # mientras las coordenadas esten en la lista entoces dame otras
+            #    self.coordy = rdint(1,21)*32
+            #self.NovoPlanete = Planete(self.nombreCoplt, self.coordx, self.coordy)
+            #self.listPlnt.append(self.NovoPlanete)
                 
             #Python funciona leyendo linea por line es decir PRIMERO verficamos que las coordenadas no estan en la lista y LUEGOQ se pone en la lista
             ListCoordx.append(self.coordx)
             ListCoordy.append(self.coordy)
-        self.listPlnt.append(self.listPlnt[0]) 
+        #para evitar que se duplique el sprite; mejor cambiar a % para distancia y camino
+        #self.listPlnt.append(self.listPlnt[0]) 
         return self.listPlnt 
     
     
@@ -100,6 +108,16 @@ class Itinerarios():
                 self.distTot += dist
             return self.distTot
     
+    def fitness(self, it):  
+        fitness_list = []
+        for i in range(len(it)):
+            d = self.Dist(it[i])
+            if d != 0:
+                fitness_list.append(1 / d)
+            else:
+                fitness_list.append(float('inf'))  # max au cas ou distance nulle (1 planete)
+        return fitness_list
+        
     def nouvellegen(self, m: int, p: int):
         prevgen = cp.copy(self)
         #modificar para que esten tambien en order creciente

@@ -11,8 +11,7 @@ boite_reglages = graphics.Reglages(root)
 canvas.pack()
 
 # garde les sprites pour eviter qu'ils soient garbage collected et disparaissent de l'affichage
-simulation_state = {"sprites": []}
-simulation_state2 = {"nombrePlanetList": []}
+etat_sim_graph = {"sprites": []}
 
 #boucle pour chaque generation 
 def start_simulation():
@@ -26,19 +25,11 @@ def start_simulation():
 
     galaxie = classes.Galaxia() # iniciar la galaxia
     galaxie.SamsungGalaxy(nbp) # generar los planetas
-    nombrePlanet=galaxie.nombreCoplt
     sprites = []
-    nombrePlanetList=[]
-    Label = tkr.Label(root)
     for planet in galaxie.listPlnt:
         sprites.append(graphics.PlanetSprite(canvas, planet, f"Assets/planete_{rd.randint(1,8)}.png"))
         print(planet)
-        place= Label.place(x=planet.x, y=planet.y)
-        # label nos permitira de poner texto
-        nombrePlanetList.append(Label.config(text=nombrePlanet))
-        print(nombrePlanetList)
-    simulation_state["sprites"] = sprites
-    simulation_state2["nombrePlanetList"] = nombrePlanetList
+    etat_sim_graph["sprites"] = sprites
     
 
     ittest = classes.Itinerarios(galaxie) # test de itinerarios
@@ -46,22 +37,13 @@ def start_simulation():
 
     for i in range(nbi):
         graphics.GalaxyPath(canvas, ittest.itinerarios[i])
+ # ! puse fitness en clases para que se pueda usar en main, pero si causa problemas lo devolvemos a main
  # la lista de los fitness para luego hacer la competicion y comparar los fitness
-    fitness_list = []
-    for chemin in ittest.itinerarios:
-        d = ittest.Dist(chemin)
-        if d != 0:
-            f = 1 / d
-        else:
-            f = float('inf')  # max au cas ou distance nulle (1 planete)
-        fitness_list.append((f))
-
-
-
+    fitness_list = ittest.fitness(ittest.itinerarios)
     #crea lista con tantos 0 como caminos en la lista fitness
-    scores = [0]* len(fitness_list)
+    scores = [0]* len(fitness_list) 
 
-
+#L46-L67: TORNEO, NO SIRVE POR AHORA  
     for i in range(50):  
     # selecciona a 5 itinerarios
         indices = rd.sample(range(len(fitness_list)), 5)
@@ -71,7 +53,7 @@ def start_simulation():
             if fitness_list[i][1] > fitness_list[best][1]:
                 best = i
     # suma un punto al vencedor
-        scores[best] += 1
+            scores[best] += 1
 
 
     resultats = []
@@ -85,10 +67,11 @@ def start_simulation():
     meilleurs = resultats[:4]
 
     print("MEILLEURS CHEMINS :")
-    for chemin, fitness, distance, score in meilleurs:
-        print("Score :", score)
-        print("Distance :", distance)
-        print("Fitness :", fitness)
+    #for chemin, fitness, distance, score in meilleurs:
+    for i in range(len(fitness_list)):
+        print("Score :", scores[i])
+        print("Distance :", ittest.Dist(ittest.itinerarios[i]))
+        print("Fitness :", fitness_list[i])
         print("--------------")
 
 boite_reglages.start_cmd(start_simulation)
