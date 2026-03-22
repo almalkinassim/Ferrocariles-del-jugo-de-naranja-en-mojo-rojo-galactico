@@ -17,8 +17,6 @@ etat_sim_graph = {"sprites": []}
 def start_simulation():
     canvas.delete("all") # reinitialise le canvas
     
-
-    #+1 temporales para evitar errores de indice, pero hay que cambiarlo despues en las galaxia/itinerarios
     nbp = boite_reglages.get_nbp() 
     nbi = boite_reglages.get_nbi() 
     #nbg = boite_reglages.get_nbg() #remettre apres avoir fait la partie generations
@@ -38,7 +36,6 @@ def start_simulation():
     for i in range(nbi):
         graphics.GalaxyPath(canvas, ittest.itinerarios[i])
  # ! puse fitness en clases para que se pueda usar en main, pero si causa problemas lo devolvemos a main
- # la lista de los fitness para luego hacer la competicion y comparar los fitness
     fitness_list = ittest.fitness(ittest.itinerarios)
     #crea lista con tantos 0 como caminos en la lista fitness
     scores = [0]* len(fitness_list) 
@@ -66,6 +63,7 @@ def start_simulation():
 # stockea los 4 mejores
     meilleurs = resultats[:4]
 
+#prints para verificar que todo funciona
     print("MEILLEURS CHEMINS :")
     #for chemin, fitness, distance, score in meilleurs:
     for i in range(len(fitness_list)):
@@ -76,4 +74,4 @@ def start_simulation():
 
 boite_reglages.start_cmd(start_simulation)
 
-root.mainloop()# hace correr el programa no se debe de poner nada despues de esta linea segun stack overflow porque si no el programa lo ignorara
+root.mainloop() # hace correr el programa no se debe de poner nada despues de esta linea segun stack overflow porque si no el programa lo ignorara
