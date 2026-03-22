@@ -1,3 +1,10 @@
+                        boucle
+                        coger el hiijo, quitas el que tiene el peor fitness, pones al hijo,y vuelve a hacer el toreneo y vuelta a empezar
+                       
+                        COMO HACER EL CROSS OVER DEFINITIVO
+                        cogemos los mejores ititnerarios del papa1 (entre papa1 y papa2 papa1 tiene mejor fitness) y los mejores del papa2
+                        
+                        
                         COMO HACER QUE LOS PLANETAS NO SE SUPERPONGAN
                 en galaxia(probablemente) podremos analizar las coordenadas que ya han sido atribuuidas a un planeta
                 creamos una lista que almacena las coordenadas separadas en x e y
@@ -5,9 +12,9 @@
                 If(coordenadas.!contains coordx && coordenadas!contains coordy)
                         añade las coordenadas a al planeta en cuestion
                 else:
-                        vuelve a generar coordenadas                        
+                        sumale +16                        
 
-
+                añade etas coordenadas a la listo
 
 
 
