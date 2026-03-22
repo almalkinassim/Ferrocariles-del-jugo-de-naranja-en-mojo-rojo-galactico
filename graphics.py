@@ -26,11 +26,10 @@ class CanvasResize:
     self.canvas.config(width=event.width, height=event.height)
 
 def GalaxyPath(canvas,galaxy):
-  col = random.randint(0,0x100000)
   for i in range(len(galaxy)):
       p1 = galaxy[i]
       p2 = galaxy[(i + 1) % len(galaxy)] # pour faire un circuit fermé, on prend le prochain planète 
-      canvas.create_line(p1.x, p1.y, p2.x, p2.y, fill=f"#{col:06x}", width=2) # Trace le chemin entre planètes consécutives
+      canvas.create_line(p1.x, p1.y, p2.x, p2.y, fill=f"white", width=2) # Trace le chemin entre planètes consécutives
 
 class Reglages:
   def __init__(self,root):
@@ -59,6 +58,13 @@ class Reglages:
     self.generations_spin.pack(anchor="w", padx=10, pady=(0, 10))
     self.generations_spin.delete(0, "end")
 
+  #Affichage du bouton de rounds
+    self.rounds_label = tkr.Label(self.frame, text="Nombre de rounds par tournoi:", bg="#B3B3B3")
+    self.rounds_label.pack(anchor="w", padx=10, pady=(0, 2))
+    self.rounds_spin = tkr.Spinbox(self.frame, from_=1, to=100, width=8)
+    self.rounds_spin.pack(anchor="w", padx=10, pady=(0, 10))
+    self.rounds_spin.delete(0, "end")
+
     # Bouton pour démarrer la simulation
     self.start_button = tkr.Button(self.frame, text="Démarrer la simulation", bg="#B3B3B3")
     self.start_button.pack(anchor="w", padx=10, pady=(4, 10))
@@ -71,6 +77,9 @@ class Reglages:
   
   def get_nbg(self):
     return int(self.generations_spin.get())
+
+  def get_nbr(self):
+    return int(self.rounds_spin.get())
 
   def start_cmd(self, command):
     self.start_button.config(command=command)

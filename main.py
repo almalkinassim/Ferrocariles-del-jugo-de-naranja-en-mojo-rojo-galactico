@@ -16,14 +16,27 @@ canvas.pack()
 etat_sim_graph = {"sprites": []}
 
 
+def draw_tagged_ga_path(chemin):
+    # Appelle la fonction centralisee dans graphics puis tag les lignes ajoutees
+    before_items = set(canvas.find_all())
+    graphics.GalaxyPath(canvas, chemin)
+    after_items = set(canvas.find_all())
+    new_items = after_items - before_items
+    for item_id in new_items:
+        if canvas.type(item_id) == "line":
+            canvas.addtag_withtag("ga_path", item_id)
+
+
+
+
 #boucle pour chaque generation
 def start_simulation():
     canvas.delete("all") # reinitialise le canvas
-   
+
     nbp = boite_reglages.get_nbp()
     nbi = boite_reglages.get_nbi()
-    nbg = boite_reglages.get_nbg() #remettre apres avoir fait la partie generations
-
+    nbg = boite_reglages.get_nbg()
+    nbr = boite_reglages.get_nbr()
 
     galaxie = classes.Galaxie() # iniciar la galaxia
     galaxie.SamsungGalaxy(nbp) # generar los planetas
@@ -32,65 +45,58 @@ def start_simulation():
         sprites.append(graphics.PlanetSprite(canvas, planet, f"Assets/planete_{rd.randint(1,8)}.png"))
         print(planet)
     etat_sim_graph["sprites"] = sprites
-   
 
+    ittest = classes.Itineraires(galaxie)
+    ittest.genererRd(nbi)
 
-    ittest = classes.Itineraires(galaxie) # test de itinerarios
-    ttest = classes.Tournoi()
-    ittest.genererRd(nbi) # generer les itinéraires
+    # Algorithme genetique: on fait evoluer la population pendant nbg generations
+    for generation in range(nbg):
+        ttest = classes.Tournoi()
+        fitness_list = ttest.fitness(ittest)
+        score = ttest.tournoi(rounds=nbr)
 
+        if len(fitness_list) < 2:
+            break
 
-    for i in range(nbi):
-        graphics.GalaxyPath(canvas, ittest.itinerarios[i])
-        print("distance itinéraire", i, ":", ittest.Dist(ittest.itinerarios[i]))
-     
+        # Selection des meilleurs itinerares selon le score du tournoi
+        ranked_idx = sorted(range(len(score)), key=lambda i: score[i], reverse=True)
+        n_parents = min(4, len(ranked_idx))
+        parents = [fitness_list[i][0] for i in ranked_idx[:n_parents]]
 
+        # Croisement jusqu'a recreer toute la population
+        enfants = []
+        while len(enfants) < nbi:
+            if len(parents) >= 2:
+                p1, p2 = rd.sample(parents, 2)
+            else:
+                p1 = parents[0]
+                p2 = parents[0]
+            enfants.append(ittest.croisement(p1, p2))
 
-    fitness_list = ttest.fitness(ittest)
-    score = ttest.tournoi(rounds=20)
-    parents = []
-    enfants = []
-    peores = []
+        ittest.itinerarios = enfants
 
-    #elije a l os mejores
-    for i in range(4):
-        i = score.index(max(score))
-        parents.append(fitness_list[i][0])
-        chemin, fitness, dist = fitness_list[i]
-        print(f"Itin {i} -> score={score[i]}")
+        # Mutation legere pour maintenir la diversite genetique
+        #ittest.mutation(0.1)
 
-        score[i] = -1
-    #elije los peores    
-    for i in range(4):
-        j = score.index(min(score))
-        peores.append(fitness_list[i][0])
-        chemin, fitness, dist = fitness_list[i]
-        print(f"Itin {i} -> score={score[i]}")
-        score[j] = +1
-   
-    for i in range(len(ittest.itinerarios)):
-        p1, p2 = rd.sample(parents, 2)
-        enfant = ittest.croisement(p1, p2)
-        enfants.append(enfant)
-    ittest.itinerarios = enfants
+        best_gen_i = ranked_idx[0]
+        print(
+            f"distance={fitness_list[best_gen_i][2]:.2f}"
+        )
+        # effacer et redessiner le chemin gagnant pour chaque gen 
+        canvas.delete("ga_path")
+        draw_tagged_ga_path(fitness_list[best_gen_i][0])
+        canvas.update_idletasks()
+        canvas.update()
+        canvas.after(50)
+        
 
-
-
-
-    parent1 = fitness_list[0][0]
-    parent2 = fitness_list[1][0]
-
-
-    enfant = ittest.croisement(parent1, parent2)
-
-
-    print("\n--- TEST CROISEMENT ---")
-    print("Parent 1 :", parent1)
-    print("Parent 2 :", parent2)
-    print("Enfant   :", enfant)
-    print("Peores   :", peores)
-    #galaxie.listPlnt.remove(peores)
-    galaxie.listPlnt.append(enfant)
+    # resultat final 
+    final_tournoi = classes.Tournoi()
+    final_fitness = final_tournoi.fitness(ittest)
+    best_chemin, _, best_dist = max(final_fitness, key=lambda x: x[1])
+    canvas.delete("ga_path")
+    draw_tagged_ga_path(best_chemin)
+    print(f"\nmeilleur itineraire final: distance={best_dist:.2f}")
     
 
 
