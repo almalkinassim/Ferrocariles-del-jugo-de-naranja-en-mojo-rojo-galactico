@@ -8,7 +8,6 @@ class PlanetSprite:
   def __init__(self,canvas,planet,path): 
     self.canvas = canvas
     self.planet = planet
-  
 
     # detallar como encontrar photo -> PIL.ImageTK no sirvio pero PIL.Image si ;-;
     img = Image.open(path) #charge image 
@@ -16,6 +15,7 @@ class PlanetSprite:
     self.photo = ImageTk.PhotoImage(imgsz) #la fait lisible pour tkinter
     # id Permet la visualisation dans la fenetre de tkinter
     self.id = canvas.create_image( planet.x,planet.y,image=self.photo)
+    self.text_id = canvas.create_text (planet.x, planet.y+20, text = planet.NomP,fill="#EBCCFB")
     
 class CanvasResize:
   def __init__(self,canvas):
@@ -68,6 +68,9 @@ class Reglages:
 
   def get_nbi(self):
     return int(self.itineraries_spin.get())
+  
+  def get_nbg(self):
+    return int(self.generations_spin.get())
 
   def start_cmd(self, command):
     self.start_button.config(command=command)

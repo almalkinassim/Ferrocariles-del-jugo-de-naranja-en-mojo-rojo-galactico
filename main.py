@@ -1,7 +1,8 @@
 import classes
-import graphics 
-import tkinter as tkr
+import graphics
+import tkinter as tkr           
 import random as rd
+
 
 #interface graphique
 root = tkr.Tk()
@@ -10,87 +11,90 @@ canvas = tkr.Canvas(root, width=1240, height=786, bg= "#2F1939")
 boite_reglages = graphics.Reglages(root)
 canvas.pack()
 
-# garde les sprites pour eviter qu'ils soient garbage collected et disparaissent de l'affichage
-simulation_state = {"sprites": []}
-simulation_state2 = {"nombrePlanetList": []}
 
-#boucle pour chaque generation 
+# garde les sprites pour eviter qu'ils soient garbage collected et disparaissent de l'affichage
+etat_sim_graph = {"sprites": []}
+
+
+#boucle pour chaque generation
 def start_simulation():
     canvas.delete("all") # reinitialise le canvas
-    
+   
+    nbp = boite_reglages.get_nbp()
+    nbi = boite_reglages.get_nbi()
+    nbg = boite_reglages.get_nbg() #remettre apres avoir fait la partie generations
 
-    #+1 temporales para evitar errores de indice, pero hay que cambiarlo despues en las galaxia/itinerarios
-    nbp = boite_reglages.get_nbp() 
-    nbi = boite_reglages.get_nbi() 
-    #nbg = boite_reglages.get_nbg() #remettre apres avoir fait la partie generations
 
-    galaxie = classes.Galaxia() # iniciar la galaxia
+    galaxie = classes.Galaxie() # iniciar la galaxia
     galaxie.SamsungGalaxy(nbp) # generar los planetas
-    nombrePlanet=galaxie.nombreCoplt
     sprites = []
-    nombrePlanetList=[]
-    Label = tkr.Label(root)
     for planet in galaxie.listPlnt:
         sprites.append(graphics.PlanetSprite(canvas, planet, f"Assets/planete_{rd.randint(1,8)}.png"))
         print(planet)
-        place= Label.place(x=planet.x, y=planet.y)
-        # label nos permitira de poner texto
-        nombrePlanetList.append(Label.config(text=nombrePlanet))
-        print(nombrePlanetList)
-    simulation_state["sprites"] = sprites
-    simulation_state2["nombrePlanetList"] = nombrePlanetList
-    
+    etat_sim_graph["sprites"] = sprites
+   
 
-    ittest = classes.Itinerarios(galaxie) # test de itinerarios
+
+    ittest = classes.Itineraires(galaxie) # test de itinerarios
+    ttest = classes.Tournoi()
     ittest.genererRd(nbi) # generer les itinéraires
+
 
     for i in range(nbi):
         graphics.GalaxyPath(canvas, ittest.itinerarios[i])
- # la lista de los fitness para luego hacer la competicion y comparar los fitness
-    fitness_list = []
-    for chemin in ittest.itinerarios:
-        d = ittest.Dist(chemin)
-        if d != 0:
-            f = 1 / d
-        else:
-            f = float('inf')  # max au cas ou distance nulle (1 planete)
-        fitness_list.append((f))
+        print("distance itinéraire", i, ":", ittest.Dist(ittest.itinerarios[i]))
+     
+
+
+    fitness_list = ttest.fitness(ittest)
+    score = ttest.tournoi(rounds=20)
+    parents = []
+    enfants = []
+    peores = []
+
+    #elije a l os mejores
+    for i in range(4):
+        i = score.index(max(score))
+        parents.append(fitness_list[i][0])
+        chemin, fitness, dist = fitness_list[i]
+        print(f"Itin {i} -> score={score[i]}")
+
+        score[i] = -1
+    #elije los peores    
+    for i in range(4):
+        j = score.index(min(score))
+        peores.append(fitness_list[i][0])
+        chemin, fitness, dist = fitness_list[i]
+        print(f"Itin {i} -> score={score[i]}")
+        score[j] = +1
+   
+    for i in range(len(ittest.itinerarios)):
+        p1, p2 = rd.sample(parents, 2)
+        enfant = ittest.croisement(p1, p2)
+        enfants.append(enfant)
+    ittest.itinerarios = enfants
 
 
 
-    #crea lista con tantos 0 como caminos en la lista fitness
-    scores = [0]* len(fitness_list)
+
+    parent1 = fitness_list[0][0]
+    parent2 = fitness_list[1][0]
 
 
-    for i in range(50):  
-    # selecciona a 5 itinerarios
-        indices = rd.sample(range(len(fitness_list)), 5)
-    # escoge al mejor
-        best = indices[0]
-        for i in indices:
-            if fitness_list[i][1] > fitness_list[best][1]:
-                best = i
-    # suma un punto al vencedor
-        scores[best] += 1
+    enfant = ittest.croisement(parent1, parent2)
 
 
-    resultats = []
+    print("\n--- TEST CROISEMENT ---")
+    print("Parent 1 :", parent1)
+    print("Parent 2 :", parent2)
+    print("Enfant   :", enfant)
+    print("Peores   :", peores)
+    #galaxie.listPlnt.remove(peores)
+    galaxie.listPlnt.append(enfant)
+    
 
-    for i in range(len(fitness_list)):
-        chemin, fitness, distance = fitness_list[i]
-        score = scores[i]
-        resultats.append((chemin, fitness, distance, score))
-
-# stockea los 4 mejores
-    meilleurs = resultats[:4]
-
-    print("MEILLEURS CHEMINS :")
-    for chemin, fitness, distance, score in meilleurs:
-        print("Score :", score)
-        print("Distance :", distance)
-        print("Fitness :", fitness)
-        print("--------------")
 
 boite_reglages.start_cmd(start_simulation)
 
-root.mainloop()# hace correr el programa no se debe de poner nada despues de esta linea segun stack overflow porque si no el programa lo ignorara
+
+root.mainloop() # hace correr el programa no se debe de poner nada despues de esta linea segun stack overflow porque si no el programa lo ignorara
