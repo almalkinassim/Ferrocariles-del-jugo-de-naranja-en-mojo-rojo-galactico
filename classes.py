@@ -54,20 +54,10 @@ class Galaxie: #GENERA LOS PLANETAS UNICAMENTE
                 self.NovoPlanete = Planete(self.nombreCoplt, self.coordx+16, self.coordy+16)
             self.listPlnt.append(self.NovoPlanete)
            
-            # ! podemos volver a usar while, si le damos un numero maximo de intentos para evitar un bucle inf, por ahora seguir usando elif
-
-
-            #while(self.coordx in ListCoordx and   self.coordy in ListCoordy):# tiene que ser un while
-            #    self.coordx = rdint(1,28)*32 # mientras las coordenadas esten en la lista entoces dame otras
-            #    self.coordy = rdint(1,21)*32
-            #self.NovoPlanete = Planete(self.nombreCoplt, self.coordx, self.coordy)
-            #self.listPlnt.append(self.NovoPlanete)
-               
             #Python funciona leyendo linea por line es decir PRIMERO verficamos que las coordenadas no estan en la lista y LUEGOQ se pone en la lista
             ListCoordx.append(self.coordx)
             ListCoordy.append(self.coordy)
         #para evitar que se duplique el sprite; mejor cambiar a % para distancia y camino
-        #self.listPlnt.append(self.listPlnt[0])
         return self.listPlnt
    
    
@@ -87,7 +77,7 @@ class Itineraires():
         plnt_init = self.Galx.listPlnt[0]
         for i in range(m):
             chemin = self.Galx.listPlnt[1:]
-            rd.shuffle(chemin)
+            rd.shuffle(chemin)#cambia el orden de manera random
             self.itinerarios.append([plnt_init] + chemin)
 
 
@@ -117,7 +107,7 @@ class Itineraires():
     # corte
         start = rd.randint(1, size - 4)
         end = start + rd.randint(2, 3)  # longueur 3 ou 4
-        segment = parent1[start:end]
+        segment = parent1[start:end]#cortamos con [:]
         enfant = [parent1[0]]
         enfant += segment
        
@@ -125,10 +115,7 @@ class Itineraires():
         for p in parent2:
             if p not in enfant:
                 enfant.append(p)
-   
         return enfant  
-
-
 
 
 class Tournoi:

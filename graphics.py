@@ -25,11 +25,21 @@ class CanvasResize:
     # Redimensionne le canvas
     self.canvas.config(width=event.width, height=event.height)
 
-def GalaxyPath(canvas,galaxy):
-  for i in range(len(galaxy)):
-      p1 = galaxy[i]
-      p2 = galaxy[(i + 1) % len(galaxy)] # pour faire un circuit fermé, on prend le prochain planète 
+def GalaxyPath(canvas,itineraire):
+  for i in range(len(itineraire)):
+      p1 = itineraire[i]
+      p2 = itineraire[(i + 1) % len(itineraire)] # pour faire un circuit fermé, on prend le prochain planète 
       canvas.create_line(p1.x, p1.y, p2.x, p2.y, fill=f"white", width=2) # Trace le chemin entre planètes consécutives
+
+def tagged_path(canvas, chemin):
+    before_GP_items = set(canvas.find_all())
+    GalaxyPath(canvas, chemin)
+    after_GP_items = set(canvas.find_all())
+    nouveau_chemin = after_GP_items - before_GP_items #trouve les nouveaux items créés par GalaxyPath
+    for item_id in nouveau_chemin:
+        if canvas.type(item_id) == "line": #separe les chemins (qui sont des lignes) des autres items (planetes et textes)
+            canvas.addtag_withtag("chemin_gen_i", item_id) 
+
 
 class Reglages:
   def __init__(self,root):

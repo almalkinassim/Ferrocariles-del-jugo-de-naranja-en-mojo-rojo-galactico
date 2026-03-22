@@ -15,20 +15,6 @@ canvas.pack()
 # garde les sprites pour eviter qu'ils soient garbage collected et disparaissent de l'affichage
 etat_sim_graph = {"sprites": []}
 
-
-def draw_tagged_ga_path(chemin):
-    # Appelle la fonction centralisee dans graphics puis tag les lignes ajoutees
-    before_items = set(canvas.find_all())
-    graphics.GalaxyPath(canvas, chemin)
-    after_items = set(canvas.find_all())
-    new_items = after_items - before_items
-    for item_id in new_items:
-        if canvas.type(item_id) == "line":
-            canvas.addtag_withtag("ga_path", item_id)
-
-
-
-
 #boucle pour chaque generation
 def start_simulation():
     canvas.delete("all") # reinitialise le canvas
@@ -55,51 +41,61 @@ def start_simulation():
         fitness_list = ttest.fitness(ittest)
         score = ttest.tournoi(rounds=nbr)
 
+        #arrete si pas assez des itineraires pour faire tournoi
         if len(fitness_list) < 2:
             break
 
         # Selection des meilleurs itinerares selon le score du tournoi
-        ranked_idx = sorted(range(len(score)), key=lambda i: score[i], reverse=True)
+        ranked_idx = sorted(range(len(score)), key=lambda i: score[i], reverse=True)#
+        # selection des 4 (ou  moins si pop <4) meilleurs
         n_parents = min(4, len(ranked_idx))
         parents = [fitness_list[i][0] for i in ranked_idx[:n_parents]]
+        
+        elite = [fitness_list[ranked_idx[0]][0], fitness_list[ranked_idx[1]][0]] if len(ranked_idx) > 1 else [fitness_list[ranked_idx[0]][0]]
 
         # Croisement jusqu'a recreer toute la population
-        enfants = []
+        enfants = elite[:] # [:] signifca que copia todo el tableau es decirt que enfat es igual a tod elite es como usar copy
         while len(enfants) < nbi:
             if len(parents) >= 2:
                 p1, p2 = rd.sample(parents, 2)
-            else:
+            else:# si il y a qu'un seul parent, il se croise à lui même
                 p1 = parents[0]
                 p2 = parents[0]
             enfants.append(ittest.croisement(p1, p2))
 
-        ittest.itinerarios = enfants
+        ittest.itinerarios = enfants# al final tenemos en enfant elite mas la nueva gen
 
         # Mutation legere pour maintenir la diversite genetique
-        #ittest.mutation(0.1)
+        ittest.mutation(0.2)
 
         best_gen_i = ranked_idx[0]
         print(
+            f"Top generation {generation + 1}: "
             f"distance={fitness_list[best_gen_i][2]:.2f}"
+            f" | score={score[best_gen_i]}"
         )
         # effacer et redessiner le chemin gagnant pour chaque gen 
-        canvas.delete("ga_path")
-        draw_tagged_ga_path(fitness_list[best_gen_i][0])
+        canvas.delete("chemin_gen_i")
+        graphics.tagged_path(canvas, fitness_list[best_gen_i][0])
         canvas.update_idletasks()
         canvas.update()
         canvas.after(50)
+        if generation == 1:
+            canvas.after(2000) # pause pour voir le gagnant initial
         
 
     # resultat final 
     final_tournoi = classes.Tournoi()
     final_fitness = final_tournoi.fitness(ittest)
     best_chemin, _, best_dist = max(final_fitness, key=lambda x: x[1])
-    canvas.delete("ga_path")
-    draw_tagged_ga_path(best_chemin)
+    canvas.delete("chemin_gen_i")
+    graphics.tagged_path(canvas,best_chemin)
     print(f"\nmeilleur itineraire final: distance={best_dist:.2f}")
-    
-
-
+    print("ordre des planetes du meilleur itineraire final:")
+    for planet in best_chemin:
+        print(planet)
+    print("=====simulation terminee=====")
+        
 boite_reglages.start_cmd(start_simulation)
 
 
