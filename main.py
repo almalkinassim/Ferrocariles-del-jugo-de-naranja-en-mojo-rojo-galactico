@@ -50,9 +50,14 @@ def start_simulation():
         # selection des 4 (ou  moins si pop <4) meilleurs
         n_parents = min(4, len(ranked_idx))
         parents = [fitness_list[i][0] for i in ranked_idx[:n_parents]]
-        
-        elite = [fitness_list[ranked_idx[0]][0], fitness_list[ranked_idx[1]][0]] if len(ranked_idx) > 1 else [fitness_list[ranked_idx[0]][0]]
-
+       
+        #ELITISME
+        elite = []# des fois il ya des itineraires qui sont tres bien fait dcp on les garde et on les donnera à l'enfant
+        if(len(ranked_idx) > 1 ):# si on plus de 2 itinéraires on prend le top2
+           elite = [fitness_list[ranked_idx[0]][0], fitness_list[ranked_idx[1]][0]] 
+        else:# sinon juste on prend l'unique itinéraire
+            elite = [fitness_list[ranked_idx[0]][0]]
+            
         # Croisement jusqu'a recreer toute la population
         enfants = elite[:] # [:] signifca que copia todo el tableau es decirt que enfat es igual a tod elite es como usar copy
         while len(enfants) < nbi:
