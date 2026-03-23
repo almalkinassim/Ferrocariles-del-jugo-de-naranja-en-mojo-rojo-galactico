@@ -149,5 +149,3 @@ class Tournoi:
     # suma un punto al vencedor
             scores[best] += 1
         return scores
-
-

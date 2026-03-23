@@ -99,4 +99,4 @@ def start_simulation():
 boite_reglages.start_cmd(start_simulation)
 
 
-root.mainloop() # hace correr el programa no se debe de poner nada despues de esta linea segun stack overflow porque si no el programa lo ignorara
+root.mainloop() # hace correr el programa no se debe de poner nada despues de esta linea porque si no el programa lo ignorara
