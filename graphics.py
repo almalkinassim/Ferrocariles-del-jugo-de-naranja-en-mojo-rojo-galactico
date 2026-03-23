@@ -16,14 +16,6 @@ class PlanetSprite:
     # id Permet la visualisation dans la fenetre de tkinter
     self.id = canvas.create_image( planet.x,planet.y,image=self.photo)
     self.text_id = canvas.create_text (planet.x, planet.y+20, text = planet.NomP,fill="#EBCCFB")
-    
-class CanvasResize:
-  def __init__(self,canvas):
-    self.canvas = canvas
-    self.canvas.bind("<Configure>", self.resize)
-  def resize(self,event):
-    # Redimensionne le canvas
-    self.canvas.config(width=event.width, height=event.height)
 
 def GalaxyPath(canvas,itineraire):
   for i in range(len(itineraire)):
